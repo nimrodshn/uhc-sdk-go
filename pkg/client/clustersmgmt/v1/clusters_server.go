@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/clustersmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -55,10 +56,21 @@ type ClustersServer interface {
 type ClustersListServerRequest struct {
 	path   string
 	query  url.Values
+	ctx    context.Context
 	page   *int
 	size   *int
 	search *string
 	total  *int
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *ClustersListServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Page returns the value of the 'page' parameter.
@@ -270,7 +282,18 @@ type clustersListServerResponseData struct {
 type ClustersAddServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
 	body  *Cluster
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *ClustersAddServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Body returns the value of the 'body' parameter.
@@ -373,6 +396,7 @@ func (a *ClustersServerAdapter) readClustersListServerRequest(r *http.Request) (
 	result := new(ClustersListServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *ClustersServerAdapter) writeClustersListServerResponse(w http.ResponseWriter, r *ClustersListServerResponse) error {
@@ -418,6 +442,7 @@ func (a *ClustersServerAdapter) readClustersAddServerRequest(r *http.Request) (*
 	result := new(ClustersAddServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	err := result.unmarshal(r.Body)
 	if err != nil {
 		return nil, err

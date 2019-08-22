@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/clustersmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -78,6 +79,17 @@ type ClusterServer interface {
 type ClusterGetServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *ClusterGetServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // ClusterGetServerResponse is the response for the 'get' method.
@@ -118,7 +130,18 @@ func (r *ClusterGetServerResponse) marshal(writer io.Writer) error {
 type ClusterUpdateServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
 	body  *Cluster
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *ClusterUpdateServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Body returns the value of the 'body' parameter.
@@ -198,6 +221,17 @@ func (r *ClusterUpdateServerResponse) marshal(writer io.Writer) error {
 type ClusterDeleteServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *ClusterDeleteServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // ClusterDeleteServerResponse is the response for the 'delete' method.
@@ -267,6 +301,7 @@ func (a *ClusterServerAdapter) readClusterGetServerRequest(r *http.Request) (*Cl
 	result := new(ClusterGetServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *ClusterServerAdapter) writeClusterGetServerResponse(w http.ResponseWriter, r *ClusterGetServerResponse) error {
@@ -312,6 +347,7 @@ func (a *ClusterServerAdapter) readClusterUpdateServerRequest(r *http.Request) (
 	result := new(ClusterUpdateServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	err := result.unmarshal(r.Body)
 	if err != nil {
 		return nil, err
@@ -361,6 +397,7 @@ func (a *ClusterServerAdapter) readClusterDeleteServerRequest(r *http.Request) (
 	result := new(ClusterDeleteServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *ClusterServerAdapter) writeClusterDeleteServerResponse(w http.ResponseWriter, r *ClusterDeleteServerResponse) error {

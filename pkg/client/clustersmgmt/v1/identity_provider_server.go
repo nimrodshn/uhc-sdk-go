@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/clustersmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -48,6 +49,17 @@ type IdentityProviderServer interface {
 type IdentityProviderGetServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *IdentityProviderGetServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // IdentityProviderGetServerResponse is the response for the 'get' method.
@@ -88,6 +100,17 @@ func (r *IdentityProviderGetServerResponse) marshal(writer io.Writer) error {
 type IdentityProviderDeleteServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *IdentityProviderDeleteServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // IdentityProviderDeleteServerResponse is the response for the 'delete' method.
@@ -121,6 +144,7 @@ func (a *IdentityProviderServerAdapter) readIdentityProviderGetServerRequest(r *
 	result := new(IdentityProviderGetServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *IdentityProviderServerAdapter) writeIdentityProviderGetServerResponse(w http.ResponseWriter, r *IdentityProviderGetServerResponse) error {
@@ -166,6 +190,7 @@ func (a *IdentityProviderServerAdapter) readIdentityProviderDeleteServerRequest(
 	result := new(IdentityProviderDeleteServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *IdentityProviderServerAdapter) writeIdentityProviderDeleteServerResponse(w http.ResponseWriter, r *IdentityProviderDeleteServerResponse) error {

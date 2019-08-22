@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/accountsmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -48,6 +49,17 @@ type SubscriptionServer interface {
 type SubscriptionGetServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *SubscriptionGetServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // SubscriptionGetServerResponse is the response for the 'get' method.
@@ -88,6 +100,17 @@ func (r *SubscriptionGetServerResponse) marshal(writer io.Writer) error {
 type SubscriptionDeleteServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *SubscriptionDeleteServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // SubscriptionDeleteServerResponse is the response for the 'delete' method.
@@ -121,6 +144,7 @@ func (a *SubscriptionServerAdapter) readSubscriptionGetServerRequest(r *http.Req
 	result := new(SubscriptionGetServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *SubscriptionServerAdapter) writeSubscriptionGetServerResponse(w http.ResponseWriter, r *SubscriptionGetServerResponse) error {
@@ -166,6 +190,7 @@ func (a *SubscriptionServerAdapter) readSubscriptionDeleteServerRequest(r *http.
 	result := new(SubscriptionDeleteServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *SubscriptionServerAdapter) writeSubscriptionDeleteServerResponse(w http.ResponseWriter, r *SubscriptionDeleteServerResponse) error {

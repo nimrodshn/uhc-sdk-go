@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/accountsmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -43,6 +44,17 @@ type RegistryServer interface {
 type RegistryGetServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *RegistryGetServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // RegistryGetServerResponse is the response for the 'get' method.
@@ -97,6 +109,7 @@ func (a *RegistryServerAdapter) readRegistryGetServerRequest(r *http.Request) (*
 	result := new(RegistryGetServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *RegistryServerAdapter) writeRegistryGetServerResponse(w http.ResponseWriter, r *RegistryGetServerResponse) error {

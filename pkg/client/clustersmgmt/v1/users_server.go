@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/clustersmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -53,6 +54,17 @@ type UsersServer interface {
 type UsersListServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *UsersListServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // UsersListServerResponse is the response for the 'list' method.
@@ -133,7 +145,18 @@ type usersListServerResponseData struct {
 type UsersAddServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
 	body  *User
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *UsersAddServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Body returns the value of the 'body' parameter.
@@ -236,6 +259,7 @@ func (a *UsersServerAdapter) readUsersListServerRequest(r *http.Request) (*Users
 	result := new(UsersListServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *UsersServerAdapter) writeUsersListServerResponse(w http.ResponseWriter, r *UsersListServerResponse) error {
@@ -281,6 +305,7 @@ func (a *UsersServerAdapter) readUsersAddServerRequest(r *http.Request) (*UsersA
 	result := new(UsersAddServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	err := result.unmarshal(r.Body)
 	if err != nil {
 		return nil, err

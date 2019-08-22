@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/clustersmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -48,6 +49,17 @@ type LogsServer interface {
 type LogsListServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *LogsListServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // LogsListServerResponse is the response for the 'list' method.
@@ -150,6 +162,7 @@ func (a *LogsServerAdapter) readLogsListServerRequest(r *http.Request) (*LogsLis
 	result := new(LogsListServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *LogsServerAdapter) writeLogsListServerResponse(w http.ResponseWriter, r *LogsListServerResponse) error {

@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/accountsmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -43,10 +44,21 @@ type QuotaSummaryServer interface {
 type QuotaSummaryListServerRequest struct {
 	path   string
 	query  url.Values
+	ctx    context.Context
 	page   *int
 	size   *int
 	search *string
 	total  *int
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *QuotaSummaryListServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Page returns the value of the 'page' parameter.
@@ -272,6 +284,7 @@ func (a *QuotaSummaryServerAdapter) readQuotaSummaryListServerRequest(r *http.Re
 	result := new(QuotaSummaryListServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *QuotaSummaryServerAdapter) writeQuotaSummaryListServerResponse(w http.ResponseWriter, r *QuotaSummaryListServerResponse) error {

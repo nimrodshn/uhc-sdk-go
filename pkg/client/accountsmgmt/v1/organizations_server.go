@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/accountsmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -53,9 +54,20 @@ type OrganizationsServer interface {
 type OrganizationsListServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
 	page  *int
 	size  *int
 	total *int
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *OrganizationsListServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Page returns the value of the 'page' parameter.
@@ -217,7 +229,18 @@ type organizationsListServerResponseData struct {
 type OrganizationsAddServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
 	body  *Organization
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *OrganizationsAddServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Body returns the value of the 'body' parameter.
@@ -320,6 +343,7 @@ func (a *OrganizationsServerAdapter) readOrganizationsListServerRequest(r *http.
 	result := new(OrganizationsListServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *OrganizationsServerAdapter) writeOrganizationsListServerResponse(w http.ResponseWriter, r *OrganizationsListServerResponse) error {
@@ -365,6 +389,7 @@ func (a *OrganizationsServerAdapter) readOrganizationsAddServerRequest(r *http.R
 	result := new(OrganizationsAddServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	err := result.unmarshal(r.Body)
 	if err != nil {
 		return nil, err

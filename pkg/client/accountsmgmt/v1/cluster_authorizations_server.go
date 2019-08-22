@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/accountsmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -43,7 +44,18 @@ type ClusterAuthorizationsServer interface {
 type ClusterAuthorizationsPostServerRequest struct {
 	path    string
 	query   url.Values
+	ctx     context.Context
 	request *ClusterAuthorizationRequest
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *ClusterAuthorizationsPostServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Request returns the value of the 'request' parameter.
@@ -137,6 +149,7 @@ func (a *ClusterAuthorizationsServerAdapter) readClusterAuthorizationsPostServer
 	result := new(ClusterAuthorizationsPostServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	err := result.unmarshal(r.Body)
 	if err != nil {
 		return nil, err

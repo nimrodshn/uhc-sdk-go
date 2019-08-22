@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/accountsmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -48,9 +49,20 @@ type SubscriptionsServer interface {
 type SubscriptionsListServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
 	page  *int
 	size  *int
 	total *int
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *SubscriptionsListServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Page returns the value of the 'page' parameter.
@@ -234,6 +246,7 @@ func (a *SubscriptionsServerAdapter) readSubscriptionsListServerRequest(r *http.
 	result := new(SubscriptionsListServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *SubscriptionsServerAdapter) writeSubscriptionsListServerResponse(w http.ResponseWriter, r *SubscriptionsListServerResponse) error {

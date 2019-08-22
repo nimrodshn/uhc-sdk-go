@@ -20,6 +20,7 @@ limitations under the License.
 package v1 // github.com/openshift-online/uhc-sdk-go/pkg/client/accountsmgmt/v1
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -53,6 +54,17 @@ type RoleServer interface {
 type RoleGetServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *RoleGetServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // RoleGetServerResponse is the response for the 'get' method.
@@ -93,7 +105,18 @@ func (r *RoleGetServerResponse) marshal(writer io.Writer) error {
 type RoleUpdateServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
 	body  *Role
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *RoleUpdateServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // Body returns the value of the 'body' parameter.
@@ -173,6 +196,17 @@ func (r *RoleUpdateServerResponse) marshal(writer io.Writer) error {
 type RoleDeleteServerRequest struct {
 	path  string
 	query url.Values
+	ctx   context.Context
+}
+
+// GetContext returns the request Context and
+// a flag indicating if the parameter has a value.
+func (r *RoleDeleteServerRequest) GetContext() (value context.Context, ok bool) {
+	ok = r != nil && r.ctx != nil
+	if ok {
+		value = r.ctx
+	}
+	return
 }
 
 // RoleDeleteServerResponse is the response for the 'delete' method.
@@ -207,6 +241,7 @@ func (a *RoleServerAdapter) readRoleGetServerRequest(r *http.Request) (*RoleGetS
 	result := new(RoleGetServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *RoleServerAdapter) writeRoleGetServerResponse(w http.ResponseWriter, r *RoleGetServerResponse) error {
@@ -252,6 +287,7 @@ func (a *RoleServerAdapter) readRoleUpdateServerRequest(r *http.Request) (*RoleU
 	result := new(RoleUpdateServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	err := result.unmarshal(r.Body)
 	if err != nil {
 		return nil, err
@@ -301,6 +337,7 @@ func (a *RoleServerAdapter) readRoleDeleteServerRequest(r *http.Request) (*RoleD
 	result := new(RoleDeleteServerRequest)
 	result.query = r.Form
 	result.path = r.URL.Path
+	result.ctx = r.Context()
 	return result, nil
 }
 func (a *RoleServerAdapter) writeRoleDeleteServerResponse(w http.ResponseWriter, r *RoleDeleteServerResponse) error {
